@@ -21,6 +21,7 @@ package org.apache.kylin.source.hive;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -104,13 +105,16 @@ public class HiveMRInput implements IMRInput {
 
     public static class BatchCubingInputSide implements IMRBatchCubingInputSide {
 
+        private static final Logger logger = LoggerFactory.getLogger(BatchCubingInputSide.class);
         final JobEngineConfig conf;
         final IJoinedFlatTableDesc flatDesc;
         String hiveViewIntermediateTables = "";
+        private static String hiveQueueSetStatements;
 
         public BatchCubingInputSide(IJoinedFlatTableDesc flatDesc) {
             this.conf = new JobEngineConfig(KylinConfig.getInstanceFromEnv());
             this.flatDesc = flatDesc;
+            this.hiveQueueSetStatements = KylinCubeConfig.generateHiveSetStatements(flatDesc);
         }
 
         @Override
@@ -163,6 +167,7 @@ public class HiveMRInput implements IMRInput {
             final HiveCmdBuilder hiveCmdBuilder = new HiveCmdBuilder();
             hiveCmdBuilder.addStatement(JoinedFlatTable.generateHiveSetStatements(conf));
             hiveCmdBuilder.addStatement("set hive.exec.compress.output=false;\n");
+            hiveCmdBuilder.addStatement(hiveQueueSetStatements);
             hiveCmdBuilder.addStatement(JoinedFlatTable.generateCountDataStatement(flatTableDesc, rowCountOutputDir));
             step.setCmd(hiveCmdBuilder.build());
             step.setName(ExecutableConstants.STEP_NAME_COUNT_HIVE_TABLE);
@@ -194,6 +199,7 @@ public class HiveMRInput implements IMRInput {
             final String useDatabaseHql = "USE " + conf.getConfig().getHiveDatabaseForIntermediateTable() + ";";
             hiveCmdBuilder.addStatement(useDatabaseHql);
             hiveCmdBuilder.addStatement(setHql);
+            hiveCmdBuilder.addStatement(hiveQueueSetStatements);
             for(TableDesc lookUpTableDesc : lookupViewsTables) {
                 if (TableDesc.TABLE_TYPE_VIRTUAL_VIEW.equalsIgnoreCase(lookUpTableDesc.getTableType())) {
                     StringBuilder createIntermediateTableHql = new StringBuilder();
@@ -225,7 +231,7 @@ public class HiveMRInput implements IMRInput {
             step.setUseRedistribute(redistribute);
             step.setInitStatement(hiveInitBuf.toString());
             step.setRowCountOutputDir(rowCountOutputDir);
-            step.setCreateTableStatement(useDatabaseHql + dropTableHql + createTableHql + insertDataHqls);
+            step.setCreateTableStatement(useDatabaseHql + hiveQueueSetStatements + dropTableHql + createTableHql + insertDataHqls);
             CubingExecutableUtil.setCubeName(cubeName, step.getParams());
             step.setName(ExecutableConstants.STEP_NAME_CREATE_FLAT_HIVE_TABLE);
             return step;
@@ -370,6 +376,7 @@ public class HiveMRInput implements IMRInput {
         public String getRowCountOutputDir() {
             return getParam("rowCountOutputDir");
         }
+
     }
 
     public static class GarbageCollectionStep extends AbstractExecutable {
