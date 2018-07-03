@@ -67,7 +67,7 @@ then
     #In this way we no longer need to explicitly configure hadoop/hbase related classpath for tomcat,
     #hbase command will do all the dirty tasks for us:
 
-    spring_profile=`sh ${dir}/get-properties.sh kylin.security.profile`
+    spring_profile="testing"
     if [ -z "$spring_profile" ]
     then
         echo 'please set kylin.security.profile in kylin.properties, options are: testing, ldap, saml.'

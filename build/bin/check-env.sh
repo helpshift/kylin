@@ -45,7 +45,7 @@ then
     exit 1
 fi
 
-WORKING_DIR=`sh $KYLIN_HOME/bin/get-properties.sh kylin.hdfs.working.dir`
+WORKING_DIR="/kylin"
 hadoop fs -mkdir -p $WORKING_DIR
 if [ $? != 0 ]
 then
