@@ -69,6 +69,9 @@ public class CubeSegmentScanner implements IGTScanner {
         try {
             scanRangePlanner = new CubeScanRangePlanner(cubeSeg, cuboid, filter, dimensions, groups, metrics, context);
         } catch (Exception e) {
+            if (e.getCause() != null && e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            }
             throw new RuntimeException(e);
         }
         scanRequest = scanRangePlanner.planScanRequest();
