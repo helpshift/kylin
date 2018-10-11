@@ -15,7 +15,8 @@ public class KylinCubeConfig {
   public static String generateHiveSetStatements(IJoinedFlatTableDesc flatTableDesc) {
     KylinConfig kylinConfig = KylinConfig.getInstanceFromEnv();
     CubeManager cubeMgr = CubeManager.getInstance(kylinConfig);
-    KylinConfig kylinCubeConfig = flatTableDesc.getDataModel().getConfig();
+    String cubeName = flatTableDesc.getCubeName();
+    KylinConfig kylinCubeConfig = cubeMgr.getCube(cubeName).getConfig();
     Map<String,String> mapReduceOverrides = kylinCubeConfig.getMRConfigOverride();
     Map<String,String> tezOverrides = kylinCubeConfig.getTEZConfigOverride();
     String setStatement = "\n";

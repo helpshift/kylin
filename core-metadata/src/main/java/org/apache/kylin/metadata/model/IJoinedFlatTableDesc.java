@@ -35,6 +35,8 @@ public interface IJoinedFlatTableDesc {
     long getSourceOffsetStart();
     
     long getSourceOffsetEnd();
-    
+
+    String getCubeName();
+
     TblColRef getDistributedBy();
 }

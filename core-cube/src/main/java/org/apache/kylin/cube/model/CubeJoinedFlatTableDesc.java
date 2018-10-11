@@ -162,4 +162,7 @@ public class CubeJoinedFlatTableDesc implements IJoinedFlatTableDesc {
         return cubeDesc.getDistributedByColumn();
     }
 
+    @Override
+    public String getCubeName() { return cubeDesc.getName(); }
+
 }

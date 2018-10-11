@@ -94,6 +94,10 @@ public class CubeJoinedFlatTableEnrich implements IJoinedFlatTableDesc {
         return cubeDesc;
     }
 
+    public String getCubeName() {
+        return cubeDesc.getName();
+    }
+
     public int[] getRowKeyColumnIndexes() {
         return rowKeyColumnIndexes;
     }
@@ -136,5 +140,4 @@ public class CubeJoinedFlatTableEnrich implements IJoinedFlatTableDesc {
     public TblColRef getDistributedBy() {
         return flatDesc.getDistributedBy();
     }
-
 }
